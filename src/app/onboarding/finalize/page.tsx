@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useBillingStore } from '@/app/stores/useBillingStore';
 import { useOrgStore } from '@/app/stores/useOrgStore';
 import { useUserStore } from '@/app/stores/useUserStore';
@@ -14,6 +15,17 @@ export default function FinalizePage() {
   const router = useRouter();
   const { isDemoMode } = useDemoAuth();
   const demoStore = useDemoStore();
+  const [tempToken, setTempToken] = useState<string | null>(null);
+
+  // Load tempToken on mount
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('tempToken');
+      setTempToken(token);
+    } catch (err) {
+      console.error('Error reading tempToken:', err);
+    }
+  }, []);
 
   // Get states from all stores
   const {
@@ -51,6 +63,18 @@ export default function FinalizePage() {
   const handleSubmit = async () => {
     try {
       if (isDemoMode()) {
+        // Convert blob URL to base64 if it exists
+        let logoBase64 = '';
+        if (orgLogo && orgLogo.startsWith('blob:')) {
+          const response = await fetch(orgLogo);
+          const blob = await response.blob();
+          logoBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+        }
+
         // Store all data in demo store
         demoStore.setBillingData({
           trackingType,
@@ -65,7 +89,7 @@ export default function FinalizePage() {
 
         demoStore.setOrgData({
           orgName,
-          orgLogo: orgLogo || '',
+          orgLogo: logoBase64 || '',
           colorTheme,
           shareDataAnalytics
         });
@@ -100,31 +124,8 @@ export default function FinalizePage() {
         return;
       }
 
-      // Regular mode
-      let logoUrl = orgLogo;
-      if (orgLogo && orgLogo.startsWith('blob:')) {
-        // Convert blob URL to File object
-        const response = await fetch(orgLogo);
-        const blob = await response.blob();
-        const file = new File([blob], 'logo.png', { type: 'image/png' });
-
-        // Upload to storage
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const uploadResponse = await fetch('/api/logo/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!uploadResponse.ok) {
-          const error = await uploadResponse.json();
-          throw new Error(error.message || 'Failed to upload logo');
-        }
-
-        const { url } = await uploadResponse.json();
-        logoUrl = url;
-      }
+      // For non-demo mode, just store the blob URL directly
+      let logoUrl = orgLogo || '';
 
       // Prepare subscription data with hardware devices
       const subscriptionData = {
@@ -167,41 +168,19 @@ export default function FinalizePage() {
         driver_email: vehicle.vin // Using VIN as driver email for now
       }));
 
-      // Get the temporary token from localStorage
-      const tempToken = localStorage.getItem('tempToken');
-      if (!tempToken) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch('/api/registration/complete-registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${tempToken}`
-        },
-        body: JSON.stringify({
-          customization: customizationData,
-          subscription: subscriptionData,
-          users: usersData,
-          vehicles: vehiclesData
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Registration completion failed');
-      }
-
-      const result = await response.json();
-
-      // Store the final token and clear temporary token
-      localStorage.setItem('token', result.token);
-      localStorage.removeItem('tempToken');
+      // Store data locally for non-demo mode as well
+      localStorage.setItem('orgData', JSON.stringify({
+        customization: customizationData,
+        subscription: subscriptionData,
+        users: usersData,
+        vehicles: vehiclesData
+      }));
 
       router.push('/dashboard');
     } catch (error) {
       console.error('Error completing registration:', error);
     }
-  };
+  };  2
 
   // Rest of the JSX remains the same
   return (

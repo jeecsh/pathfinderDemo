@@ -1,4 +1,6 @@
-import { useCallback, useState } from 'react';
+'use client';
+
+import { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export interface DemoUser {
@@ -12,6 +14,20 @@ export const useDemoAuth = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
+
+  // Initialize state from localStorage on mount
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem('demoUser');
+      const isDemoModeStr = localStorage.getItem('isDemoMode');
+      setDemoUser(userStr ? JSON.parse(userStr) : null);
+      setDemoMode(isDemoModeStr === 'true');
+    } catch (err) {
+      console.error('Error reading from localStorage:', err);
+    }
+  }, []);
 
   const registerDemo = useCallback(async (
     organizationName: string,
@@ -31,6 +47,10 @@ export const useDemoAuth = () => {
       // Store demo user data
       localStorage.setItem('demoUser', JSON.stringify(demoUser));
       localStorage.setItem('isDemoMode', 'true');
+      
+      // Update state
+      setDemoUser(demoUser);
+      setDemoMode(true);
 
       return { user: demoUser };
     } catch (err) {
@@ -42,22 +62,31 @@ export const useDemoAuth = () => {
   }, []);
 
   const getDemoUser = useCallback(() => {
-    const userStr = localStorage.getItem('demoUser');
-    return userStr ? JSON.parse(userStr) : null;
-  }, []);
+    return demoUser;
+  }, [demoUser]);
 
   const isDemoMode = useCallback(() => {
-    return localStorage.getItem('isDemoMode') === 'true';
-  }, []);
+    return demoMode;
+  }, [demoMode]);
 
   const clearDemoData = useCallback(() => {
-    localStorage.removeItem('demoUser');
-    localStorage.removeItem('isDemoMode');
-    localStorage.removeItem('demoOrgData');
-    localStorage.removeItem('demoBillingData');
-    localStorage.removeItem('demoUsersList');
-    localStorage.removeItem('demoVehiclesList');
-    router.push('/auth/register');
+    try {
+      localStorage.removeItem('demoUser');
+      localStorage.removeItem('isDemoMode');
+      localStorage.removeItem('demoOrgData');
+      localStorage.removeItem('demoBillingData');
+      localStorage.removeItem('demoUsersList');
+      localStorage.removeItem('demoVehiclesList');
+      
+      // Update state
+      setDemoUser(null);
+      setDemoMode(false);
+      
+      router.push('/auth/register');
+    } catch (err) {
+      console.error('Error clearing demo data:', err);
+      setError('Failed to clear demo data');
+    }
   }, [router]);
 
   return {
