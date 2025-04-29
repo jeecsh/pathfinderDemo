@@ -130,7 +130,8 @@ export default function HeroSection() {
                 <div className="w-full h-full relative rounded overflow-hidden bg-blue-900/20">
                   {/* Map visualization */}
                   <div className="absolute inset-0" style={{
-                    backgroundImage: `url("/mapp.jpg")`,
+                backgroundImage: isDark ? 'url("/mapp.jpg")' : 'url("/map.webp")',
+
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                   }}></div>
