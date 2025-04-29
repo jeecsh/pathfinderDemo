@@ -8,16 +8,6 @@ const nextConfig = {
     domains: ['picsum.photos', 'images.unsplash.com'],
   },
 
-  // Configure webpack to handle leaflet properly
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader'],
-    });
-
-    return config;
-  },
-
   // Suppress specific ESLint rules for demo purposes
   eslint: {
     ignoreDuringBuilds: true,
