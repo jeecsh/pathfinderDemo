@@ -61,9 +61,10 @@ export function TeamCard({ team, leader, members, onSelect }: TeamCardProps) {
           <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
             <div className="flex-shrink-0">
               {leader.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={leader.avatar}
-                  alt={leader.name}
+                  alt={`${leader.name}'s avatar`}
                   className="w-10 h-10 rounded-full"
                 />
               ) : (

@@ -144,7 +144,12 @@ export default function DashboardPreview() {
                   </div>
                   
                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                    <img src="/map.webp" alt="Map view" className="w-full h-full object-cover" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src="/map.webp" 
+                      alt="Interactive map showing vehicle locations" 
+                      className="w-full h-full object-cover" 
+                    />
                     
                     {/* Vehicle markers */}
                     {[

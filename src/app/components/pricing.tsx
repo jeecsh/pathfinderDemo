@@ -5,14 +5,7 @@ import {
   Check, 
   MapPin, 
   ArrowRight, 
-  Car, 
-  User, 
-  Radar, 
-  Shield, 
-  Cpu, 
-  Wifi, 
-  Smartphone,
-  Bell,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   BarChart3,
   Package,
   Zap

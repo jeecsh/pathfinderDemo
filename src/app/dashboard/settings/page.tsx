@@ -110,9 +110,10 @@ export default function SettingsPage() {
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-20 h-20 rounded-lg border border-border overflow-hidden">
                   {tempLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={tempLogo}
-                      alt="Organization logo"
+                      alt={`${orgName} logo`}
                       className="w-full h-full object-cover"
                     />
                   ) : (

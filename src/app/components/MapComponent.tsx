@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
-import { LatLng } from 'leaflet';
 
 interface Station {
   id: string;

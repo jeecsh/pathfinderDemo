@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 export type User = {
   id: string
   email: string
-  role: "admin" | "mobile"
+  role: "admin" | "mobile" | "manager" | "support"
   is_active: boolean
   createdAt: string
 }

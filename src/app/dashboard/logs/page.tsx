@@ -14,8 +14,7 @@ interface Log {
   action: string
   entity: string
   entity_id: string | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  details: any | null
+  details: Record<string, unknown> | null
   created_at: string
   user_id: string
   user_email: string
@@ -135,13 +134,13 @@ export default function LogsPage() {
     }
   }
 
-  const formatDetails = (details: any) => {
+  const formatDetails = (details: Record<string, unknown> | null) => {
     if (!details) return 'No details'
     try {
       if (typeof details === 'string') {
-        details = JSON.parse(details)
+        details = JSON.parse(details) as Record<string, unknown>
       }
-      return Object.entries(details)
+      return Object.entries(details as Record<string, unknown>)
         .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
         .join(', ')
     } catch {

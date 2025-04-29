@@ -9,19 +9,16 @@ import { useVehicleStore } from '@/app/stores/useVehicleStore';
 import { useDemoAuth } from '@/hooks/useDemoAuth';
 import { useDemoStore } from '@/app/stores/useDemoStore';
 import { CompleteOrder, getHardwareOptions } from '@/app/components/CompleteOrder';
-import { Building2, Users, Car, Package, AlertCircle, Check } from 'lucide-react';
 
 export default function FinalizePage() {
   const router = useRouter();
   const { isDemoMode } = useDemoAuth();
   const demoStore = useDemoStore();
-  const [tempToken, setTempToken] = useState<string | null>(null);
 
   // Load tempToken on mount
   useEffect(() => {
     try {
-      const token = localStorage.getItem('tempToken');
-      setTempToken(token);
+      localStorage.getItem('tempToken');
     } catch (err) {
       console.error('Error reading tempToken:', err);
     }
@@ -51,14 +48,12 @@ export default function FinalizePage() {
   const { vehicles } = useVehicleStore();
 
   // Get different user types
-  const teamUsers = getTeamMembersByRole(['admin', 'manager', 'viewer']);
+  getTeamMembersByRole(['admin', 'manager', 'viewer']);
   const drivers = getTeamMembersByRole(['driver']);
   const mobileUsers = getTeamMembersByRole(['mobile']);
 
   // Validation
   const canAddDrivers = trackingType === 'software' || (trackingType === 'hardware' && mobileAppEnabled);
-  const hasInvalidDrivers = !canAddDrivers && drivers.length > 0;
-  const hasInvalidMobileUsers = !canAddDrivers && mobileUsers.length > 0;
 
   const handleSubmit = async () => {
     try {
@@ -125,7 +120,7 @@ export default function FinalizePage() {
       }
 
       // For non-demo mode, just store the blob URL directly
-      let logoUrl = orgLogo || '';
+      const logoUrl = orgLogo || '';
 
       // Prepare subscription data with hardware devices
       const subscriptionData = {
@@ -180,9 +175,8 @@ export default function FinalizePage() {
     } catch (error) {
       console.error('Error completing registration:', error);
     }
-  };  2
+  };
 
-  // Rest of the JSX remains the same
   return (
     <div className="max-w-6xl mx-auto p-6 relative">
       {/* Background elements */}
@@ -214,9 +208,166 @@ export default function FinalizePage() {
           )}
         </div>
 
-        {/* Content sections remain the same */}
-        {/* ... */}
+        {/* Organization Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Organization</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Organization Name</span>
+                <span className="font-medium text-gray-900 dark:text-white">{orgName || 'Not Set'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Color Theme</span>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-4 h-4 rounded-full" 
+                    style={{ backgroundColor: colorTheme || '#2563EB' }}
+                  />
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {colorTheme || 'Default Blue'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Data Analytics</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {dataAnalyticsEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              {orgLogo && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 dark:text-gray-400">Organization Logo</span>
+                  <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded overflow-hidden shadow">
+                    <img src={orgLogo} alt="Organization Logo" className="w-full h-full object-contain" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Subscription</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Tracking Method</span>
+                <span className="font-medium text-gray-900 dark:text-white capitalize">{trackingType}</span>
+              </div>
+              {countingType && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Counting Type</span>
+                  <span className="font-medium text-gray-900 dark:text-white capitalize">{countingType}</span>
+                </div>
+              )}
+              {selectedHardware && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">Hardware</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {getHardwareOptions(countingType).find(h => h.id === selectedHardware)?.name} ({hardwareQuantity})
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Mobile App</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {mobileAppEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Announcements</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {announcementEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Notifications</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {notificationEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Feedback System</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {feedbackEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Members & Vehicles */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 border-t border-gray-200 dark:border-gray-800">
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Team Members</h3>
+            {teamMembers.length > 0 ? (
+              <div className="overflow-auto max-h-60">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                    {teamMembers.map((member, index) => (
+                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{member.name}</td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{member.email}</td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 capitalize">{member.role}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400">No team members added yet.</p>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Vehicles</h3>
+            {vehicles.length > 0 ? (
+              <div className="overflow-auto max-h-60">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">License</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                    {vehicles.map((vehicle, index) => (
+                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{vehicle.name}</td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{vehicle.licensePlate}</td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 capitalize">{vehicle.type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400">No vehicles added yet.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Compatibility Warnings */}
+        {!canAddDrivers && (mobileUsers.length > 0 || drivers.length > 0) && (
+          <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-amber-50 dark:bg-amber-900/20">
+            <div className="flex items-center gap-3 text-amber-800 dark:text-amber-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <h4 className="font-medium">Compatibility Warning</h4>
+            </div>
+            <p className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+              Your current tracking setup doesn't support mobile users or drivers. Consider enabling the mobile app or switching to software tracking.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="mt-12">

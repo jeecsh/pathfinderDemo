@@ -83,7 +83,7 @@ export function UserManagement() {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   }
-  const [isMobileAppEnabled, setIsMobileAppEnabled] = useState(true)
+  const [isMobileAppEnabled] = useState(true)
 
   useEffect(() => {
     // Simulate loading data with a delay
@@ -230,7 +230,7 @@ export function UserManagement() {
     {
       accessorKey: "role",
       header: "Role",
-      cell: ({ row }: { row: { original: { role: string | null } } }) => {
+      cell: ({ row }: { row: { original: MobileUser } }) => {
         // Display the actual role or 'No Role' if null
         const roleValue = row.original.role || 'No Role';
         return (
@@ -243,7 +243,7 @@ export function UserManagement() {
     {
       accessorKey: "notification_enabled",
       header: "Notifications",
-      cell: ({ row }: { row: { original: { notification_enabled: boolean } } }) => (
+      cell: ({ row }: { row: { original: MobileUser } }) => (
         <div className="flex items-center">
           <span className={`px-2 py-1 rounded-full text-xs ${
             row.original.notification_enabled
@@ -336,7 +336,7 @@ export function UserManagement() {
                 borderColor: colorTheme,
                 '--tw-ring-opacity': '0.5'
               }
-            } as any}
+            } as React.CSSProperties & { '--tw-ring-color': string }}
           />
         </div>
         <Button 

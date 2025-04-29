@@ -239,7 +239,12 @@ export default function FeaturesSection() {
           >
             <div className={`absolute inset-0 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`} />
             <div className="absolute inset-0 opacity-60">
-              <img src="/mapp.jpg" alt="Map visualization" className="w-full h-full object-cover" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="/mapp.jpg" 
+                alt="Map visualization background" 
+                className="w-full h-full object-cover" 
+              />
             </div>
             
             <AnimatePresence mode="wait">
