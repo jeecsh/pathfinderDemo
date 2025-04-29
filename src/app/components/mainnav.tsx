@@ -12,13 +12,42 @@ interface LandingPageNavbarProps {
 
 export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: LandingPageNavbarProps) => {
   const router = useRouter();
-  const handleSignIn= () =>{
+  
+  const handleSignIn = () => {
     router.push('/auth/signin');
   }
+  
   const handleTrackNow = () => {
     router.push('/auth/register');
   };
-  const menuItems = ['Solutions', 'Products', 'Technology', 'Company'];
+  
+  // Add scroll to section function
+  const scrollToSection = (sectionId: string) => {
+    // Remove the # if it's included
+    const id = sectionId.startsWith('#') ? sectionId.substring(1) : sectionId;
+    
+    const element = document.getElementById(id);
+    if (element) {
+      // Close mobile menu if open
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+      
+      // Scroll to the element
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+  
+  const menuItems = [
+    { title: 'Home', path: '#hero' },
+    { title: 'Features', path: '#features' },
+    { title: 'Solutions', path: '#solutions' },
+    { title: 'Pricing', path: '#pricing' }
+  ];
+  
   const gradientRef = useRef(null);
   const dotRef = useRef(null);
   const trail1Ref = useRef(null);
@@ -85,6 +114,14 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
       .to(trail3Ref.current, { x: -10, y: 10, duration: 1, ease: "sine.inOut" })
       .to(trail3Ref.current, { x: 0, y: 0, duration: 1, ease: "sine.inOut" });
 
+    // Clean up animations when component unmounts
+    return () => {
+      gsap.killTweensOf(gradientRef.current);
+      gsap.killTweensOf(dotRef.current);
+      gsap.killTweensOf(trail1Ref.current);
+      gsap.killTweensOf(trail2Ref.current);
+      gsap.killTweensOf(trail3Ref.current);
+    };
   }, []);
 
   return (
@@ -132,8 +169,12 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
-              <button key={item} className="text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm">
-                {item}
+              <button 
+                key={item.path}
+                onClick={() => scrollToSection(item.path)}
+                className="text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
+              >
+                {item.title}
               </button>
             ))}
           </div>
@@ -142,7 +183,11 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
             <button
-            onClick={handleSignIn} className="px-4 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm">Sign In</button>
+              onClick={handleSignIn} 
+              className="px-4 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm"
+            >
+              Sign In
+            </button>
             <button 
               onClick={handleTrackNow}
               className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-md hover:opacity-90 transition-all shadow-md text-sm font-medium"
@@ -152,7 +197,11 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
           </div>
           
           {/* Mobile menu button */}
-          <button className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-accent" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button 
+            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-accent" 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
             </svg>
@@ -164,8 +213,12 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
       <div className={`md:hidden bg-background border-t border-border ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
         <div className="px-4 py-2 space-y-1">
           {menuItems.map((item) => (
-            <button key={item} className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm">
-              {item}
+            <button 
+              key={item.path} 
+              onClick={() => scrollToSection(item.path)}
+              className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
+            >
+              {item.title}
             </button>
           ))}
           <div className="border-t border-border pt-2 space-y-2">
@@ -174,8 +227,11 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
               <ThemeToggle />
             </div>
             <button 
-            onClick={handleSignIn}
-            className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm">Sign In</button>
+              onClick={handleSignIn}
+              className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm"
+            >
+              Sign In
+            </button>
             <button 
               onClick={handleTrackNow}
               className="block w-full px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-md hover:opacity-90 transition-all text-sm font-medium"
