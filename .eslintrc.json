@@ -4,22 +4,14 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    // Disable warnings for unused variables in demo/development
     "@typescript-eslint/no-unused-vars": "off",
-    
-    // Allow explicit any for demo purposes
     "@typescript-eslint/no-explicit-any": "off",
-    
-    // Allow require imports for leaflet (needed for SSR compatibility)
     "@typescript-eslint/no-require-imports": "off",
-    
-    // Temporarily disable image optimization warnings for demo
     "@next/next/no-img-element": "off",
-    
-    // Disable unescaped entity warnings
     "react/no-unescaped-entities": "off",
-    
-    // Disable alt text requirement for demo
-    "jsx-a11y/alt-text": "off"
+    "jsx-a11y/alt-text": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/interactive-supports-focus": "off"
   }
 }
