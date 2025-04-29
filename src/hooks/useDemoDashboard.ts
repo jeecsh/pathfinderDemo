@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react';
-import { useOrgStore } from '@/app/stores/useOrgStore';
+import { useCallback } from 'react';
 import { useVehicleStore } from '@/app/stores/useVehicleStore';
 import { useBillingStore } from '@/app/stores/useBillingStore';
 
 interface DemoVehicle {
   id: string;
   name: string;
+  type: 'car' | 'van' | 'truck';
   status: 'active' | 'idle' | 'offline';
   location: {
     lat: number;
@@ -25,7 +25,6 @@ interface DemoRoute {
 
 export const useDemoDashboard = () => {
   const { vehicles } = useVehicleStore();
-  const { orgName } = useOrgStore();
   const { countingType } = useBillingStore();
   
   // Generate mock vehicle data based on user's vehicles
@@ -36,6 +35,7 @@ export const useDemoDashboard = () => {
         {
           id: '1',
           name: 'Demo Vehicle 1',
+          type: 'car',
           status: 'active',
           location: { lat: 35.1856, lng: 33.3823 },
           lastUpdated: new Date().toISOString()
@@ -43,6 +43,7 @@ export const useDemoDashboard = () => {
         {
           id: '2',
           name: 'Demo Vehicle 2',
+          type: 'truck',
           status: 'idle',
           location: { lat: 35.1854, lng: 33.3825 },
           lastUpdated: new Date().toISOString()
@@ -53,6 +54,7 @@ export const useDemoDashboard = () => {
     return vehicles.map((v, index) => ({
       id: v.id || String(index + 1),
       name: v.name || `Vehicle ${index + 1}`,
+      type: index % 2 === 0 ? 'car' : 'truck',
       status: index % 3 === 0 ? 'active' : index % 3 === 1 ? 'idle' : 'offline',
       location: {
         lat: 35.1856 + (Math.random() - 0.5) * 0.01,

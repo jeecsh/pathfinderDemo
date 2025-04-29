@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Car, Truck, Navigation2 } from 'lucide-react';
 import { useDemoDashboard } from '@/hooks/useDemoDashboard';
+import 'leaflet/dist/leaflet.css';
 
 // Dynamically import Leaflet components with no SSR
 const MapContainer = dynamic(
@@ -27,9 +27,8 @@ const Popup = dynamic(
 );
 
 // Custom marker icons
-let iconPerson;
-let iconCar;
-let iconTruck;
+let iconCar: any;
+let iconTruck: any;
 
 export function LiveMap() {
   const { getMockVehicles } = useDemoDashboard();
@@ -39,22 +38,9 @@ export function LiveMap() {
   // Initialize icons on client side only
   useEffect(() => {
     setIsClient(true);
-    
-    // Move the Leaflet imports inside useEffect to ensure they only run on client
     if (typeof window !== 'undefined') {
+      // Initialize Leaflet icons
       const L = require('leaflet');
-      // Import CSS in a way that works with Next.js
-      import('leaflet/dist/leaflet.css');
-
-      iconPerson = L.divIcon({
-        html: `<div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-              </div>`,
-        className: '',
-      });
 
       iconCar = L.divIcon({
         html: `<div class="w-8 h-8 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-white">
