@@ -72,7 +72,7 @@ export const Navbar = () => {
             <ThemeToggle />
           </div>
           
-          {/* Progress Steps */}
+          {/* Progress Steps - Only visible on larger screens */}
           <div className="hidden sm:flex items-center space-x-4">
             {authSteps.map((step, index) => {
               const status = getStepStatus(step.path);
@@ -107,59 +107,6 @@ export const Navbar = () => {
               );
             })}
           </div>
-
-          {/* Mobile menu button */}
-          <div className="sm:hidden flex items-center">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-all duration-300 focus:outline-none"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="block h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      <div className="sm:hidden" id="mobile-menu">
-        <div className="pt-2 pb-3 space-y-1">
-          <div className="pl-3 pr-4 py-2 border-l-4 border-transparent flex items-center justify-between">
-            <span className="text-base font-medium text-gray-600">Theme</span>
-            <ThemeToggle />
-          </div>
-          {authSteps.map((step) => {
-            const status = getStepStatus(step.path);
-            
-            return (
-              <Link
-                key={step.path}
-                href={step.path}
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  status === 'completed' ? 'border-l-[3px] border-cyan-500 text-blue-600 bg-gradient-to-r from-blue-50 to-transparent' :
-                  status === 'current' ? 'border-l-[3px] border-blue-600 text-blue-700 bg-blue-50' :
-                  'border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                }`}
-              >
-                {step.title}
-              </Link>
-            );
-          })}
         </div>
       </div>
     </nav>

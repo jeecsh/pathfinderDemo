@@ -43,7 +43,7 @@ export default function DashboardPreview() {
   }, []);
 
   return (
-    <div id="dashboard-preview" className={`w-full py-20 ${isDark ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div id="dashboard-preview" className={`w-full py-20 ${isDark ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isInView ? 'animate-fadeIn' : 'opacity-0'}`}

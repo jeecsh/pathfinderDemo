@@ -11,8 +11,12 @@ export default function HeroSection() {
   const { theme } = useThemeStore();
   const isDark = theme === 'dark';
 
-  const handleStartTracking = () => {
-    router.push('/auth/register');
+  const handleTryDemo = () => {
+    router.push('/onboarding/subscription');
+  };
+
+  const handleMeetTeam = () => {
+    router.push('/team');
   };
 
   useEffect(() => {
@@ -82,17 +86,19 @@ export default function HeroSection() {
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button 
-                onClick={handleStartTracking}
+                onClick={handleTryDemo}
                 className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 
                   ${isDark ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white
                   transform hover:scale-105`}>
-                Start Tracking
+                Try Demo
               </button>
               
-              <button className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 
+              <button 
+                onClick={handleMeetTeam}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 
                   ${isDark ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700' : 'bg-gray-100 hover:bg-gray-200 border border-gray-200'} 
                   transform hover:scale-105`}>
-                Watch Demo
+                Meet Our Team
               </button>
             </div>
             

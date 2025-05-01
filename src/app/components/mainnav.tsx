@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { ThemeToggle } from './theme-toggle';
 
@@ -12,6 +12,8 @@ interface LandingPageNavbarProps {
 
 export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: LandingPageNavbarProps) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   
   const handleSignIn = () => {
     router.push('/auth/signin');
@@ -19,6 +21,10 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
   
   const handleTrackNow = () => {
     router.push('/auth/register');
+  };
+
+  const handleLogoClick = () => {
+    router.push('/');
   };
   
   // Add scroll to section function
@@ -128,7 +134,10 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
     <nav className="bg-background fixed w-full top-0 z-50 border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center space-x-2 relative">
+          <div 
+            className="flex items-center space-x-2 relative cursor-pointer"
+            onClick={handleLogoClick}
+          >
             {/* Animation container for the logo */}
             <div className="relative w-12 h-12 flex items-center justify-center">
               {/* Trail elements */}
@@ -166,18 +175,20 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
             </div>
           </div>
           
-          {/* Desktop menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
-              <button 
-                key={item.path}
-                onClick={() => scrollToSection(item.path)}
-                className="text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
-              >
-                {item.title}
-              </button>
-            ))}
-          </div>
+          {/* Desktop menu - only show on home page */}
+          {isHomePage && (
+            <div className="hidden md:flex items-center space-x-8">
+              {menuItems.map((item) => (
+                <button 
+                  key={item.path}
+                  onClick={() => scrollToSection(item.path)}
+                  className="text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
+                >
+                  {item.title}
+                </button>
+              ))}
+            </div>
+          )}
           
           {/* Theme toggle and CTA buttons */}
           <div className="hidden md:flex items-center space-x-4">
@@ -209,38 +220,40 @@ export const LandingPageNavbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: Lan
         </div>
       </div>
       
-      {/* Mobile menu */}
-      <div className={`md:hidden bg-background border-t border-border ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-        <div className="px-4 py-2 space-y-1">
-          {menuItems.map((item) => (
-            <button 
-              key={item.path} 
-              onClick={() => scrollToSection(item.path)}
-              className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
-            >
-              {item.title}
-            </button>
-          ))}
-          <div className="border-t border-border pt-2 space-y-2">
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-muted-foreground font-medium text-sm">Theme</span>
-              <ThemeToggle />
+      {/* Mobile menu - only show on home page when open */}
+      {isHomePage && (
+        <div className={`md:hidden bg-background border-t border-border ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+          <div className="px-4 py-2 space-y-1">
+            {menuItems.map((item) => (
+              <button 
+                key={item.path} 
+                onClick={() => scrollToSection(item.path)}
+                className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground transition-colors font-medium text-sm"
+              >
+                {item.title}
+              </button>
+            ))}
+            <div className="border-t border-border pt-2 space-y-2">
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-muted-foreground font-medium text-sm">Theme</span>
+                <ThemeToggle />
+              </div>
+              <button 
+                onClick={handleSignIn}
+                className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm"
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={handleTrackNow}
+                className="block w-full px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-md hover:opacity-90 transition-all text-sm font-medium"
+              >
+                Track Now
+              </button>
             </div>
-            <button 
-              onClick={handleSignIn}
-              className="block w-full text-left px-3 py-2 text-muted-foreground hover:text-accent-foreground font-medium text-sm"
-            >
-              Sign In
-            </button>
-            <button 
-              onClick={handleTrackNow}
-              className="block w-full px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-md hover:opacity-90 transition-all text-sm font-medium"
-            >
-              Track Now
-            </button>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };

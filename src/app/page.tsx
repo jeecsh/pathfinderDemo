@@ -5,6 +5,7 @@ import HeroSection from "./components/hero";
 import PricingCTA from './components/pricing';
 import IndustrySolutions from './components/solutions';
 import Footer from './components/footer';
+import  BusTrackingShowcase from './components/mobile';
 
 const DashboardPreview = dynamic(() => import("./components/dash"), {
   ssr: false,
@@ -29,13 +30,18 @@ export default function Home() {
         <IndustrySolutions/>
       </div>
       <div id="dashboard" className="w-screen min-h-screen overflow-hidden">
-        <DashboardPreview />
+        <DashboardPreview/>
       </div>
-      <div id="pricing" className="w-screen min-h-screen overflow-hidden">
-        <PricingCTA />
-      </div>
-      <div className="w-full bg-black text-gray-400 py-1 px-4flex-shrink-0">
-        <Footer />
+      <div className="w-full bg-background">
+        <div className="bg-background">
+          <BusTrackingShowcase/>
+        </div>
+        <div className="bg-background">
+          <PricingCTA/>
+        </div>
+        <div className="bg-background">
+          <Footer />
+        </div>
       </div>
     </div>
   );}
