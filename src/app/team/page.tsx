@@ -30,8 +30,8 @@ const TeamPage = () => {
       image: "/jay.jpeg",
       tags: ["System Design", "Cloud Architecture","FullStack"],
       social: {
-        linkedin: "#",
-        github: "#",
+        linkedin: "https://www.linkedin.com/in/mohamed-yousif-122450316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+        github: "https://github.com/jeecsh",
         email: "mailto:m.yousif@example.com"
       },
       imagePosition: "center 25%" // Custom position for each member
@@ -43,8 +43,8 @@ const TeamPage = () => {
       image: "/k.jpeg",
       tags: ["Flutter", "TensorFlow", "Raspberry Pi", "ESP32"],
       social: {
-        linkedin: "#",
-        github: "#",
+        linkedin: "https://www.linkedin.com/in/mohamed-abubaker-baa87916a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+        github: "https://github.com/Ki11ay",
         email: "mailto:m.abubaker@example.com"
       },
       imagePosition: "top center"
@@ -57,7 +57,7 @@ const TeamPage = () => {
       tags: ["React", "Next.js", "TypeScript", "UI/UX"],
       social: {
         linkedin: "#",
-        github: "#",
+        github: "https://github.com/kahrvba?tab=overview&from=2025-05-01&to=2025-05-02",
         email: "mailto:a.salah@example.com"
       },
       imagePosition: "top -20 center"
@@ -96,7 +96,7 @@ const TeamPage = () => {
       tags: ["Embedded Systems", "Networking", "Cloud IoT"],
       social: {
         linkedin: "#",
-        github: "#",
+        github: "https://github.com/McShnaib",
         email: "mailto:m.osman@example.com"
       },
       imagePosition: "center 25%"

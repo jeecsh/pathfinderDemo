@@ -176,7 +176,7 @@ export default function BusTrackingShowcase(): ReactNode {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="relative w-full md:w-[500px] mx-auto p-8"> {/* Reduced padding */}
+              <div className="relative w-full md:w-[400px] mx-auto p-8"> {/* Reduced padding */}
                 {/* Phone Frame */}
                 <motion.div
                   whileHover={{ scale: 1.02, rotate: 2 }}
@@ -198,7 +198,7 @@ export default function BusTrackingShowcase(): ReactNode {
                       </div>
                     </div>
 
-                    <div className="relative h-[700px] overflow-hidden"> {/* Reduced height from 800px */}
+                    <div className="relative h-[550px] overflow-hidden"> {/* Reduced height from 800px */}
                       <motion.div
                         key={activeTab}
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -215,7 +215,7 @@ export default function BusTrackingShowcase(): ReactNode {
                             <img 
                               src={features.find(f => f.id === activeTab)?.image} 
                               alt={features.find(f => f.id === activeTab)?.title} 
-                              className="w-full h-full object-cover"
+                              className="w-80 h-full object-cover"
                             />
                             <div 
                               className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black"
