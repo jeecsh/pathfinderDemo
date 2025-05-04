@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useOrgTheme } from '@/hooks/useOrgTheme';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -183,16 +184,30 @@ export default function AnnouncementsPage() {
     setIsEditDialogOpen(true);
   };
 
-  const colorTheme = '#3b82f6'; // Default blue color, you can change this
+  const { 
+    colorTheme, 
+    getGradient, 
+    getHoverGradient, 
+    adjustColor, 
+    getContrastText 
+  } = useOrgTheme();
 
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold" style={{ color: colorTheme }}>Announcements</h1>
+        <h1 
+          className="text-3xl font-bold bg-clip-text text-transparent" 
+          style={{ backgroundImage: getGradient() }}
+        >
+          Announcements
+        </h1>
         <Button 
           onClick={() => setIsAddDialogOpen(true)}
-          style={{ backgroundColor: colorTheme }}
-          className="text-white"
+          style={{ 
+            backgroundImage: getGradient(),
+            color: getContrastText(colorTheme)
+          }}
+          className="hover:opacity-90 transition-all"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Announcement
         </Button>
@@ -200,7 +215,10 @@ export default function AnnouncementsPage() {
 
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <div 
+            className="animate-spin rounded-full h-8 w-8 border-b-2" 
+            style={{ borderColor: colorTheme }}
+          ></div>
         </div>
       ) : announcements.length === 0 ? (
         <div className="text-center py-12">
@@ -209,7 +227,11 @@ export default function AnnouncementsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {announcements.map((announcement) => (
-            <Card key={announcement.id} className="overflow-hidden flex flex-col">
+            <Card 
+              key={announcement.id} 
+              className="overflow-hidden flex flex-col transition-all hover:shadow-lg border"
+              style={{ borderColor: adjustColor(colorTheme, 0, 0.1) }}
+            >
               {announcement.image_url && (
                 <div className="relative h-48 w-full">
                   <Image
@@ -237,8 +259,10 @@ export default function AnnouncementsPage() {
                   onClick={() => openEditDialog(announcement)}
                   style={{ 
                     color: colorTheme,
-                    borderColor: colorTheme
+                    borderColor: adjustColor(colorTheme, 0, 0.5),
+                    backgroundColor: adjustColor(colorTheme, 0, 0.1)
                   }}
+                  className="hover:opacity-80 transition-all"
                 >
                   <Edit className="h-4 w-4 mr-1" /> Edit
                 </Button>
@@ -342,8 +366,11 @@ export default function AnnouncementsPage() {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                style={{ backgroundColor: colorTheme }}
-                className="text-white"
+                style={{ 
+                  backgroundImage: getGradient(),
+                  color: getContrastText(colorTheme)
+                }}
+                className="hover:opacity-90 transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -436,8 +463,11 @@ export default function AnnouncementsPage() {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                style={{ backgroundColor: colorTheme }}
-                className="text-white"
+                style={{ 
+                  backgroundImage: getGradient(),
+                  color: getContrastText(colorTheme)
+                }}
+                className="hover:opacity-90 transition-all"
               >
                 {isSubmitting ? (
                   <>

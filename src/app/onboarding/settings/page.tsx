@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useOrgStore } from '@/app/stores/useOrgStore';
 import { useDemoStore } from '@/app/stores/useDemoStore';
 import { useDemoAuth } from '@/hooks/useDemoAuth';
+import { useOrgTheme } from '@/hooks/useOrgTheme';
+import { cn } from '@/lib/utils';
 import { CompleteOrder } from '@/app/components/CompleteOrder';
 import Image from 'next/image';
 import {
@@ -18,13 +20,15 @@ import {
   CheckSquare
 } from 'lucide-react';
 
-const colorThemes = [
-  'Default',
-  'Blue',
-  'Green',
-  'Purple',
-  'Orange',
-  'Dark',
+const PRESET_COLORS = [
+  '#0891b2', // Default cyan
+  '#2563eb', // Blue
+  '#7c3aed', // Violet
+  '#db2777', // Pink
+  '#059669', // Emerald
+  '#d97706', // Amber
+  '#dc2626', // Red
+  '#4f46e5', // Indigo
 ];
 
 export default function OrganizationCustomization() {
@@ -83,6 +87,8 @@ export default function OrganizationCustomization() {
       setOrgName('Demo Organization');
     }
   }, [isDemoMode, orgName, setOrgName]);
+
+  const { getGradient } = useOrgTheme();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -201,23 +207,44 @@ export default function OrganizationCustomization() {
                   </div>
 
                   <div>
-                    <label htmlFor="colorTheme" className="flex items-center text-sm font-medium text-foreground">
-                      <PaintBucket className="h-4 w-4 text-muted-foreground mr-2" />
-                      Color Theme
-                    </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <select
-                        id="colorTheme"
-                        value={colorTheme}
-                        onChange={(e) => setColorTheme(e.target.value)}
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-foreground bg-background border-border focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-all duration-200 hover:border-blue-200"
-                      >
-                        {colorThemes.map((theme) => (
-                          <option key={theme} value={theme}>{theme}</option>
+                    <div className="space-y-4">
+                      <label className="flex items-center text-sm font-medium text-foreground">
+                        <PaintBucket className="h-4 w-4 text-muted-foreground mr-2" />
+                        Color Theme
+                      </label>
+                      <div className="grid grid-cols-8 gap-3">
+                        {PRESET_COLORS.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => setColorTheme(color)}
+                            className={cn(
+                              "w-full aspect-square rounded-lg border-2 transition-all",
+                              colorTheme === color ? "border-white ring-2 ring-blue-500" : "border-transparent"
+                            )}
+                            style={{
+                              background: `linear-gradient(to br, ${color}, ${color})`
+                            }}
+                            aria-label={`Select color ${color}`}
+                          />
                         ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Custom Color
+                        </label>
+                        <input
+                          type="color"
+                          value={colorTheme}
+                          onChange={(e) => setColorTheme(e.target.value)}
+                          className="w-full h-10 rounded-md cursor-pointer"
+                        />
+                      </div>
 
+                      <div className="h-20 rounded-lg overflow-hidden" style={{ background: getGradient() }}>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <p className="text-white text-lg font-medium">Preview</p>
+                        </div>
                       </div>
                     </div>
                   </div>

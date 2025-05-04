@@ -425,10 +425,7 @@ export default function BusTrackingShowcase(): ReactNode {
                     transition={{ delay: 0.7 }}
                     className="mt-6 flex justify-start"
                   >
-                    <button className="group flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
-                      Learn more
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
+                 
                   </motion.div>
                 </div>
               </motion.div>

@@ -36,7 +36,7 @@ interface DemoState {
   };
   orgData: {
     orgName: string;
-    orgLogo: string;
+    orgLogo: string | null;
     colorTheme: string;
     shareDataAnalytics: boolean;
   };
@@ -64,7 +64,7 @@ const initialState = {
   },
   orgData: {
     orgName: '',
-    orgLogo: '',
+    orgLogo: null,
     colorTheme: 'Default',
     shareDataAnalytics: false,
   },
