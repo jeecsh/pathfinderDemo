@@ -1,274 +1,396 @@
 'use client';
+import { useState, useEffect, useMemo, ReactNode } from 'react';
+import { ThemeHeader, ThemeCard, ThemeButton } from '@/components/ui/themed';
+import { useOrgTheme } from '@/hooks/useOrgTheme';
+import { Cpu, Thermometer, Server, Disc, RefreshCw, AlertTriangle, WifiOff, HardDrive, Battery, Signal, Shield, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { MOCK_DEVICES } from './mockDevices';
+import { Device, Metrics } from './types';
 
-import { useState } from 'react';
-import { ThemeHeader } from '@/components/ui/themed/ThemeHeader';
-import { ThemeCard } from '@/components/ui/themed/ThemeCard';
-import { ActivityChart } from '@/app/components/dashboard/ActivityChart';
-import {
-  Server,
-  Cpu,
-  Database,
-  Network,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Zap
-} from 'lucide-react';
-
-interface ServiceHealth {
-  id: string;
-  name: string;
-  status: 'operational' | 'degraded' | 'outage';
-  metrics: {
-    uptime: number;
-    responseTime: number;
-    errorRate: number;
-    lastIncident?: string;
-  };
+interface StatusIndicatorProps {
+  status: Device['status'];
+  metrics?: Metrics;
 }
 
-interface SystemMetrics {
-  cpu: number;
-  memory: number;
-  storage: number;
-  network: {
-    bandwidth: number;
-    latency: number;
-  };
-  requestsPerMinute: number;
+interface MetricCardProps {
+  title: string;
+  value: number;
+  icon: ReactNode;
+  alert?: boolean;
+  suffix?: string;
+  className?: string;
+  subtext?: string;
 }
 
-const demoServices: ServiceHealth[] = [
-  {
-    id: '1',
-    name: 'API Gateway',
-    status: 'operational',
-    metrics: {
-      uptime: 99.99,
-      responseTime: 45,
-      errorRate: 0.01,
-    }
-  },
-  {
-    id: '2',
-    name: 'Authentication Service',
-    status: 'operational',
-    metrics: {
-      uptime: 99.95,
-      responseTime: 120,
-      errorRate: 0.05,
-    }
-  },
-  {
-    id: '3',
-    name: 'Database Cluster',
-    status: 'degraded',
-    metrics: {
-      uptime: 99.50,
-      responseTime: 250,
-      errorRate: 1.2,
-      lastIncident: '2025-04-28T15:30:00'
-    }
-  },
-  {
-    id: '4',
-    name: 'Storage Service',
-    status: 'operational',
-    metrics: {
-      uptime: 99.98,
-      responseTime: 85,
-      errorRate: 0.03,
-    }
-  },
-  {
-    id: '5',
-    name: 'Message Queue',
-    status: 'outage',
-    metrics: {
-      uptime: 98.50,
-      responseTime: 500,
-      errorRate: 5.0,
-      lastIncident: '2025-04-29T02:15:00'
-    }
-  }
-];
+interface ChartSectionProps {
+  title: string;
+  data: { time: string; value: number; }[];
+  icon: ReactNode;
+  small?: boolean;
+}
 
-const systemMetrics: SystemMetrics = {
-  cpu: 45,
-  memory: 68,
-  storage: 72,
-  network: {
-    bandwidth: 850,
-    latency: 15
-  },
-  requestsPerMinute: 1250
+const StatusIndicator = ({ status, metrics }: StatusIndicatorProps) => {
+  const { color, pulse, text } = useMemo(() => {
+    if (status === 'warning' && metrics) {
+      return {
+        color: 'bg-yellow-500',
+        pulse: 'animate-pulse',
+        text: metrics.cpu > 80 ? 'High CPU' : 
+              metrics.temperature > 70 ? 'High Temp' : 
+              metrics.battery < 30 ? 'Low Battery' : 'Warning'
+      };
+    }
+    return status === 'offline' 
+      ? { color: 'bg-red-500', pulse: '', text: 'Offline' } 
+      : { color: 'bg-green-500', pulse: 'animate-pulse', text: 'Online' };
+  }, [status, metrics]);
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`w-3 h-3 rounded-full ${color} ${pulse} dark:opacity-90`}></div>
+      <span className="capitalize">{text}</span>
+    </div>
+  );
 };
 
-const generateTimeSeriesData = (hours: number, baseValue = 50, variance = 30) => {
-  const data = [];
-  const now = new Date();
-  for (let i = hours; i >= 0; i--) {
-    const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-    data.push({
-      time: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      value: Math.max(0, Math.min(100, baseValue + (Math.random() - 0.5) * variance))
+const MetricCard = ({ title, value, icon, alert = false, suffix = '', className = '', subtext = '' }: MetricCardProps) => {
+  const { colorTheme } = useOrgTheme();
+  
+  return (
+    <div className={cn(
+      "rounded-lg border border-border p-4 flex items-center justify-between dark:bg-gray-800/50 transition-colors",
+      alert 
+        ? "bg-red-50/50 border-red-200 dark:bg-red-900/10 dark:border-red-800/50" 
+        : "hover:border-primary/20 hover:bg-primary/5",
+      className
+    )}>
+      <div>
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className={cn(
+          "text-2xl font-semibold",
+          alert ? "text-red-600 dark:text-red-400" : "text-foreground"
+        )}>
+          {value}{suffix}
+        </p>
+        {subtext && (
+          <p className={cn(
+            "text-xs mt-1", 
+            alert ? "text-red-500 dark:text-red-400" : "text-muted-foreground"
+          )}>
+            {subtext}
+          </p>
+        )}
+      </div>
+      <div 
+        className={cn(
+          "p-2 rounded-full transition-colors",
+          alert 
+            ? "bg-red-100 dark:bg-red-500/10" 
+            : "bg-accent dark:bg-gray-700"
+        )}
+      >
+        {icon}
+      </div>
+    </div>
+  );
+};
+
+const generateHistoryData = (hours = 24, baseValue = 30) => {
+  return Array.from({ length: hours }, (_, i) => {
+    const time = new Date();
+    time.setHours(time.getHours() - (hours - i));
+    const variation = Math.sin(i / 3) * 15 + Math.random() * 10;
+    const value = Math.min(Math.max(baseValue + variation, 5), 95);
+    
+    return {
+      time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      value: parseFloat(value.toFixed(1))
+    };
+  });
+};
+
+const ChartSection = ({ title, data, icon, small = false }: ChartSectionProps) => {
+  const { getChartColors, isDark } = useOrgTheme();
+  const chartColors = getChartColors();
+  const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-medium">{title}</h3>
+        {icon}
+      </div>
+      <div className={cn("w-full", small ? "h-48" : "h-64")}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <Line type="monotone" dataKey="value" stroke={chartColors.primary} strokeWidth={2} dot={false} />
+            <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+            <XAxis dataKey="time" tick={{ fontSize: small ? 10 : 12 }} tickCount={small ? 5 : 6} />
+            <YAxis tick={{ fontSize: small ? 10 : 12 }} tickFormatter={v => `${v}${title.includes('Temp') ? '°C' : '%'}`} />
+            <Tooltip 
+              formatter={v => [`${v}${title.includes('Temp') ? '°C' : '%'}`, title.split(' ')[0]]}
+              labelFormatter={label => `Time: ${label}`}
+              contentStyle={{
+                backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                borderRadius: '0.5rem',
+                color: isDark ? '#fff' : '#000',
+                padding: '0.5rem'
+              }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+export default function SystemHealthPage() {
+  const [devices, setDevices] = useState<Device[]>(MOCK_DEVICES);
+  const { colorTheme, classes, getGradient, getContrastText } = useOrgTheme();
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [historyData, setHistoryData] = useState<{
+    cpu: { time: string; value: number; }[];
+    temp: { time: string; value: number; }[];
+    memory: { time: string; value: number; }[];
+  }>({
+    cpu: [],
+    temp: [],
+    memory: []
+  });
+
+  const deviceCounts = useMemo(() => devices.reduce((acc: { byType?: Record<string, number>; warning?: number; offline?: number; [key: string]: any }, device) => {
+    acc.byType = acc.byType || {};
+    acc.byType[device.deviceType] = (acc.byType[device.deviceType] || 0) + 1;
+    acc[device.status] = (acc[device.status] || 0) + 1;
+    return acc;
+  }, {}), [devices]);
+
+  useEffect(() => {
+    setHistoryData({
+      cpu: generateHistoryData(24, 30),
+      temp: generateHistoryData(24, 45),
+      memory: generateHistoryData(24, 40)
     });
-  }
-  return data;
-};
+    setSelectedDevice(MOCK_DEVICES.find((d: Device) => d.status === 'online') || null);
+    const intervalId = setInterval(refreshData, 30000);
+    return () => clearInterval(intervalId);
+  }, []);
 
-export default function HealthPage() {
-  const [services] = useState<ServiceHealth[]>(demoServices);
-  const [metrics] = useState<SystemMetrics>(systemMetrics);
-  const [cpuData] = useState(() => generateTimeSeriesData(24, metrics.cpu, 20));
-  const [requestData] = useState(() => generateTimeSeriesData(24, 60, 40));
-
-  const getStatusColor = (status: ServiceHealth['status']) => {
-    switch (status) {
-      case 'operational':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'degraded':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'outage':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-    }
+  const refreshData = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setDevices(prev => prev.map((device: Device) => ({
+        ...device,
+        metrics: device.status === 'offline' ? device.metrics : {
+          ...device.metrics,
+          cpu: Math.min(Math.max((device.metrics?.cpu || 0) + (Math.random() * 10 - 5), 5), 95),
+          memory: Math.min(Math.max((device.metrics?.memory || 0) + (Math.random() * 8 - 4), 10), 95),
+          temperature: parseFloat(((device.metrics?.temperature || 0) + (Math.random() * 2 - 1)).toFixed(1))
+        }
+      })));
+      setIsRefreshing(false);
+    }, 800);
   };
 
-  const getMetricColor = (value: number, threshold: number) => {
-    if (value <= threshold * 0.6) return 'text-green-500';
-    if (value <= threshold * 0.8) return 'text-yellow-500';
-    return 'text-red-500';
+  const handleSelectDevice = (device: Device) => {
+    setSelectedDevice(device);
+    setHistoryData({
+      cpu: generateHistoryData(24, 30),
+      temp: generateHistoryData(24, 45),
+      memory: generateHistoryData(24, 40)
+    });
+  };
+
+  const getDeviceStyle = (device: Device) => {
+    if (selectedDevice?.id === device.id) {
+      return { borderColor: colorTheme };
+    }
+    return undefined;
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <ThemeHeader description="Monitor system performance and service health">
+    <div className="space-y-6">
+      <ThemeHeader 
+        className={classes.gradientText}
+        description="Monitor the health and status of your fleet hardware systems"
+        action={
+          <ThemeButton
+            onClick={refreshData}
+            icon={<RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />}
+            disabled={isRefreshing}
+            className={cn(
+              "bg-gradient-to-r",
+              isRefreshing ? "opacity-70" : "hover:opacity-90"
+            )}
+            style={{ 
+              background: getGradient(),
+              color: getContrastText(colorTheme)
+            }}
+          >
+            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          </ThemeButton>
+        }
+      >
         System Health
       </ThemeHeader>
 
-      {/* System Overview */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <ThemeCard>
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <Cpu className="h-6 w-6 text-blue-700 dark:text-blue-300" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">CPU Usage</h3>
-              <p className={`text-2xl font-bold ${getMetricColor(metrics.cpu, 80)}`}>
-                {metrics.cpu}%
-              </p>
-            </div>
-          </div>
-        </ThemeCard>
-        <ThemeCard>
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-              <Server className="h-6 w-6 text-purple-700 dark:text-purple-300" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Memory Usage</h3>
-              <p className={`text-2xl font-bold ${getMetricColor(metrics.memory, 90)}`}>
-                {metrics.memory}%
-              </p>
-            </div>
-          </div>
-        </ThemeCard>
-        <ThemeCard>
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-              <Database className="h-6 w-6 text-orange-700 dark:text-orange-300" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Storage Usage</h3>
-              <p className={`text-2xl font-bold ${getMetricColor(metrics.storage, 85)}`}>
-                {metrics.storage}%
-              </p>
-            </div>
-          </div>
-        </ThemeCard>
-        <ThemeCard>
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-              <Network className="h-6 w-6 text-green-700 dark:text-green-300" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Network</h3>
-              <p className="text-2xl font-bold">
-                {metrics.network.bandwidth} <span className="text-sm">Mbps</span>
-              </p>
-            </div>
-          </div>
-        </ThemeCard>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          { title: "RPi Units", count: deviceCounts.byType?.rpi, icon: <Server className="h-5 w-5" /> },
+          { title: "ESP32 Units", count: deviceCounts.byType?.esp32, icon: <Activity className="h-5 w-5" /> },
+          { title: "Warning Status", count: deviceCounts.warning, icon: <AlertTriangle className="h-5 w-5" /> },
+          { title: "Offline Units", count: deviceCounts.offline, icon: <WifiOff className="h-5 w-5" /> }
+        ].map((card, i) => (
+          <ThemeCard 
+            key={i} 
+            title={card.title} 
+            description={`${card.count || 0} device${card.count !== 1 ? 's' : ''}`}
+            icon={card.icon}
+            useGradient
+            themed
+          />
+        ))}
       </div>
 
-      {/* Performance Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <ThemeCard>
-          <ActivityChart
-            title="CPU Load"
-            data={cpuData}
-            valueFormatter={(value) => `${Math.round(value)}%`}
-          />
-        </ThemeCard>
-        <ThemeCard>
-          <ActivityChart
-            title="Requests per Minute"
-            data={requestData}
-            valueFormatter={(value) => Math.round(value * metrics.requestsPerMinute / 100).toString()}
-          />
-        </ThemeCard>
-      </div>
-
-      {/* Service Health */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {services.map((service) => (
-          <ThemeCard
-            key={service.id}
-            title={service.name}
-            icon={service.status === 'operational' ? 
-              <CheckCircle2 className="h-5 w-5 text-green-500" /> : 
-              <AlertCircle className="h-5 w-5 text-red-500" />
-            }
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <ThemeCard 
+            title="Hardware Systems" 
+            description="Select a device to view detailed metrics" 
+            icon={<Server className="h-5 w-5" />}
+            themed
           >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
-                  {service.status.toUpperCase()}
-                </span>
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  Uptime: {service.metrics.uptime}%
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Response Time</span>
-                  <span className={`font-medium ${
-                    service.metrics.responseTime > 200 ? 'text-yellow-500' : 'text-green-500'
-                  }`}>
-                    {service.metrics.responseTime} ms
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Error Rate</span>
-                  <span className={`font-medium ${
-                    service.metrics.errorRate > 1 ? 'text-red-500' : 'text-green-500'
-                  }`}>
-                    {service.metrics.errorRate}%
-                  </span>
-                </div>
-                {service.metrics.lastIncident && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t border-border">
-                    <Zap className="h-4 w-4" />
-                    Last Incident: {new Date(service.metrics.lastIncident).toLocaleString()}
+            <div className="space-y-3 max-h-96 overflow-y-auto px-1">
+              {devices.map(device => (
+                <div
+                  key={device.id}
+                  onClick={() => handleSelectDevice(device)}
+                  style={getDeviceStyle(device)}
+                  className={cn(
+                    "p-3 rounded-lg border cursor-pointer transition-all dark:hover:bg-gray-800/50",
+                    selectedDevice?.id === device.id
+                      ? "bg-primary/5 dark:bg-primary/10"
+                      : "border-border hover:bg-accent",
+                    device.status === 'warning' && "border-yellow-300 bg-yellow-50/50 dark:border-yellow-500/50 dark:bg-yellow-500/10",
+                    device.status === 'offline' && "border-red-200 bg-red-50/50 opacity-75 dark:border-red-800/50 dark:bg-red-500/10"
+                  )}
+                >
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-medium">{device.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">{device.model}</p>
+                      <div className="flex items-center gap-4 text-sm mt-2">
+                        <StatusIndicator status={device.status} metrics={device.metrics} />
+                        {device.vehicleInfo && <span className="text-muted-foreground">{device.vehicleInfo.licensePlate}</span>}
+                      </div>
+                    </div>
+                    {device.status !== 'offline' && (
+                      <div className="flex items-start gap-3">
+                        <div className="text-right">
+                          <div className="text-xs font-medium">
+                            {device.deviceType === 'rpi' ? `${device.metrics.cpu ?? 0}% CPU` : `${device.metrics.battery ?? 0}% Batt`}
+                          </div>
+                          <div className="text-xs font-medium">
+                            {device.deviceType === 'rpi' ? `${device.metrics.temperature ?? 0}°C` : `${device.metrics.signalStrength ?? 0}% Sig`}
+                          </div>
+                        </div>
+                        {device.deviceType === 'rpi' ? (
+                          <Thermometer className={cn("h-5 w-5", device.metrics.temperature > 65 ? "text-red-500" : device.metrics.temperature > 55 ? "text-yellow-500" : "text-green-500")} />
+                        ) : (
+                          <Battery className={cn("h-5 w-5", device.metrics.battery < 20 ? "text-red-500" : device.metrics.battery < 40 ? "text-yellow-500" : "text-green-500")} />
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
           </ThemeCard>
-        ))}
+        </div>
+
+        <div className="lg:col-span-2">
+          {selectedDevice ? (
+            <div className="space-y-4">
+              <ThemeCard
+                title={selectedDevice.name}
+                description={`${selectedDevice.model} • ${selectedDevice.deviceType === 'rpi' ? 'Main Unit' : 'Sensor Unit'}`}
+                icon={selectedDevice.deviceType === 'rpi' ? <Server className="h-5 w-5" /> : <Activity className="h-5 w-5" />}
+                className={cn(
+                  selectedDevice.status === 'warning' && "border-yellow-200 bg-yellow-50/10",
+                  selectedDevice.status === 'offline' && "border-red-200 bg-red-50/10"
+                )}
+                themed={selectedDevice.status === 'online'}
+              >
+                {selectedDevice.status === 'offline' ? (
+                  <div className="py-8 text-center">
+                    <WifiOff className="h-12 w-12 mx-auto text-red-400 mb-4" />
+                    <h3 className="text-lg font-medium text-red-600">Connection Lost</h3>
+                    <p className="text-muted-foreground mt-2">
+                      This device is currently offline. Last seen on vehicle {selectedDevice.vehicleId}.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      {selectedDevice.deviceType === 'rpi' ? (
+                        <>
+                          <MetricCard title="CPU Usage" value={selectedDevice.metrics.cpu ?? 0} suffix="%" 
+                            icon={<Cpu className={cn("h-5 w-5", selectedDevice.metrics.cpu > 80 ? "text-red-500" : selectedDevice.metrics.cpu > 60 ? "text-yellow-500" : "text-blue-500")} />}
+                            alert={selectedDevice.metrics.cpu > 80} subtext={selectedDevice.metrics.cpu > 80 ? "Critical: High load" : ""}
+                          />
+                          <MetricCard title="Memory Usage" value={selectedDevice.metrics.memory ?? 0} suffix="%" 
+                            icon={<HardDrive className={cn("h-5 w-5", selectedDevice.metrics.memory > 80 ? "text-red-500" : selectedDevice.metrics.memory > 60 ? "text-yellow-500" : "text-purple-500")} />}
+                            alert={selectedDevice.metrics.memory > 80} subtext={selectedDevice.metrics.memory > 80 ? "Warning: Memory pressure" : ""}
+                          />
+                          <MetricCard title="Temperature" value={selectedDevice.metrics.temperature ?? 0} suffix="°C" 
+                            icon={<Thermometer className={cn("h-5 w-5", selectedDevice.metrics.temperature > 70 ? "text-red-500" : selectedDevice.metrics.temperature > 60 ? "text-yellow-500" : "text-emerald-500")} />}
+                            alert={selectedDevice.metrics.temperature > 70} subtext={selectedDevice.metrics.temperature > 70 ? "Critical: Overheating" : ""}
+                          />
+                          <MetricCard title="Disk Usage" value={selectedDevice.metrics.diskUsage ?? 0} suffix="%" 
+                            icon={<Disc className={cn("h-5 w-5", selectedDevice.metrics.diskUsage > 85 ? "text-red-500" : selectedDevice.metrics.diskUsage > 70 ? "text-yellow-500" : "text-amber-500")} />}
+                            alert={selectedDevice.metrics.diskUsage > 85} subtext={selectedDevice.metrics.diskUsage > 85 ? "Warning: Low space" : ""}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <MetricCard title="Battery Level" value={selectedDevice.metrics.battery ?? 0} suffix="%" 
+                            icon={<Battery className={cn("h-5 w-5", selectedDevice.metrics.battery < 20 ? "text-red-500" : selectedDevice.metrics.battery < 40 ? "text-yellow-500" : "text-green-500")} />}
+                            alert={selectedDevice.metrics.battery < 20} subtext={selectedDevice.metrics.battery < 20 ? "Critical: Low battery" : ""}
+                          />
+                          <MetricCard title="Signal Strength" value={selectedDevice.metrics.signalStrength ?? 0} suffix="%" 
+                            icon={<Signal className={cn("h-5 w-5", selectedDevice.metrics.signalStrength < 40 ? "text-red-500" : selectedDevice.metrics.signalStrength < 60 ? "text-yellow-500" : "text-blue-500")} />}
+                            alert={selectedDevice.metrics.signalStrength < 40} subtext={selectedDevice.metrics.signalStrength < 40 ? "Warning: Weak signal" : ""}
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    {selectedDevice.deviceType === 'rpi' && (
+                      <div className="space-y-4">
+                        <ChartSection title="CPU Usage History (24h)" data={historyData.cpu} icon={<Cpu className="h-4 w-4" />} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <ChartSection title="Temperature History (24h)" data={historyData.temp} icon={<Thermometer className="h-4 w-4" />} small />
+                          <ChartSection title="Memory Usage History (24h)" data={historyData.memory} icon={<HardDrive className="h-4 w-4" />} small />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </ThemeCard>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Server className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No Device Selected</h3>
+              <p className="text-muted-foreground text-center">
+                Select a device from the list to view detailed metrics.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

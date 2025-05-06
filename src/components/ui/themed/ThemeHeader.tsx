@@ -1,45 +1,30 @@
-'use client';
-
-import { useOrgTheme } from '@/hooks/useOrgTheme';
+import { FC, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { PropsWithChildren } from 'react';
 
-interface ThemeHeaderProps extends PropsWithChildren {
-  className?: string;
+interface ThemeHeaderProps {
+  children: ReactNode;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
+  className?: string;
 }
 
-export function ThemeHeader({ children, className, description, action }: ThemeHeaderProps) {
-  const { colorTheme, getGradient } = useOrgTheme();
-
+export const ThemeHeader: FC<ThemeHeaderProps> = ({
+  children,
+  description,
+  action,
+  className,
+}) => {
   return (
-    <div className={cn("relative py-6", className)}>
-      {/* Background gradient */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-20" />
+    <div className={cn("space-y-0.5", className)}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">{children}</h2>
+        {action && <div>{action}</div>}
       </div>
-
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 
-            className="text-2xl font-semibold"
-            style={{ color: colorTheme }}
-          >
-            {children}
-          </h1>
-          {description && (
-            <p className="mt-1 text-muted-foreground text-sm">
-              {description}
-            </p>
-          )}
-        </div>
-        {action && (
-          <div className="mt-4 md:mt-0">
-            {action}
-          </div>
-        )}
-      </div>
+      {description && (
+        <p className="text-muted-foreground">
+          {description}
+        </p>
+      )}
     </div>
   );
-}
+};
