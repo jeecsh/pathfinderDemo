@@ -1,0 +1,71 @@
+.pageHeader {
+  @apply flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6;
+}
+
+.pageTitle {
+  @apply text-2xl md:text-3xl font-bold;
+}
+
+.contentGrid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+.contentList {
+  @apply flex flex-col gap-4;
+}
+
+.card {
+  @apply p-4 md:p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow;
+}
+
+.formGroup {
+  @apply space-y-4 md:space-y-6;
+}
+
+.formRow {
+  @apply flex flex-col md:flex-row gap-4 md:gap-6;
+}
+
+.formColumn {
+  @apply flex-1 min-w-0;
+}
+
+.buttonGroup {
+  @apply flex flex-col md:flex-row gap-3 mt-6;
+}
+
+.searchBar {
+  @apply flex flex-col md:flex-row gap-3 md:items-center mb-6;
+}
+
+.tableWrapper {
+  @apply overflow-x-auto -mx-4 md:mx-0;
+}
+
+.table {
+  @apply min-w-full divide-y divide-border;
+}
+
+.filterSection {
+  @apply flex flex-col md:flex-row gap-3 mb-6;
+}
+
+.statCard {
+  @apply p-4 rounded-lg border bg-card;
+}
+
+.chartContainer {
+  @apply h-[300px] md:h-[400px] w-full mt-6;
+}
+
+.modalContent {
+  @apply max-h-[80vh] overflow-y-auto p-4 md:p-6;
+}
+
+.tabsContainer {
+  @apply overflow-x-auto -mx-4 md:mx-0 mb-6;
+}
+
+.tabs {
+  @apply flex min-w-max md:w-auto p-1 md:p-0;
+}

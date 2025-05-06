@@ -1,4 +1,5 @@
 import './globals.css'
+import '@/styles/leaflet-global.css'
 import ClientLayout from './client-layout'
 import { Poppins } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'

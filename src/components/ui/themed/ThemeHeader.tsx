@@ -17,7 +17,6 @@ export function ThemeHeader({ children, className, description, action }: ThemeH
     <div className={cn("relative py-6", className)}>
       {/* Background gradient */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-10" style={{ background: getGradient() }} />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-current to-transparent opacity-20" />
       </div>
 

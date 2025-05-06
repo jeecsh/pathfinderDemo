@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeHeader } from "@/components/ui/themed/ThemeHeader"
 import { Input } from "@/components/ui/input"
 import { format } from "date-fns"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -153,10 +154,10 @@ export default function LogsPage() {
   const paginatedLogs = logs.slice((currentPage - 1) * limit, currentPage * limit)
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Activity Logs</h1>
-      </div>
+    <div className="container mx-auto  px-4">
+      <ThemeHeader description="Monitor and track system activities and user actions">
+        Activity Logs
+      </ThemeHeader>
 
       {/* Filters */}
       <Card className="mb-6">

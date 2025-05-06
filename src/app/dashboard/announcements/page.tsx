@@ -12,8 +12,8 @@ import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import styles from '@/styles/dashboard.module.css';
 
-// Define the Announcement type
 interface Announcement {
   id: string;
   title: string;
@@ -23,7 +23,6 @@ interface Announcement {
   org_id: string;
 }
 
-// Initial mock data
 const initialAnnouncements: Announcement[] = [
   {
     id: '1',
@@ -38,7 +37,7 @@ const initialAnnouncements: Announcement[] = [
     title: 'New features available',
     body: 'Check out the latest updates we have added to improve your experience.',
     image_url: null,
-    created_at: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+    created_at: new Date(Date.now() - 86400000).toISOString(),
     org_id: 'org-123'
   }
 ];
@@ -52,15 +51,20 @@ export default function AnnouncementsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Form state
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Initialize with mock data
+  const { 
+    colorTheme, 
+    getGradient, 
+    getHoverGradient, 
+    adjustColor, 
+    getContrastText 
+  } = useOrgTheme();
+
   useEffect(() => {
-    // Simulate API loading
     const timer = setTimeout(() => {
       setAnnouncements(initialAnnouncements);
       setIsLoading(false);
@@ -73,8 +77,6 @@ export default function AnnouncementsPage() {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-
-      // Create a preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -95,7 +97,6 @@ export default function AnnouncementsPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API delay
     setTimeout(() => {
       try {
         const newAnnouncement: Announcement = {
@@ -112,7 +113,6 @@ export default function AnnouncementsPage() {
         resetForm();
         toast.success("Announcement added successfully");
       } catch (error) {
-        console.error('Error adding announcement:', error);
         toast.error("Failed to add announcement");
       } finally {
         setIsSubmitting(false);
@@ -122,11 +122,9 @@ export default function AnnouncementsPage() {
 
   const handleEditAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!selectedAnnouncement) return;
     setIsSubmitting(true);
 
-    // Simulate API delay
     setTimeout(() => {
       try {
         const updatedAnnouncements = announcements.map(announcement => {
@@ -146,7 +144,6 @@ export default function AnnouncementsPage() {
         resetForm();
         toast.success("Announcement updated successfully");
       } catch (error) {
-        console.error('Error updating announcement:', error);
         toast.error("Failed to update announcement");
       } finally {
         setIsSubmitting(false);
@@ -155,20 +152,14 @@ export default function AnnouncementsPage() {
   };
 
   const handleDeleteAnnouncement = (id: string) => {
-    if (!confirm("Are you sure you want to delete this announcement?")) {
-      return;
-    }
-
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
     setDeletingId(id);
 
-    // Simulate API delay
     setTimeout(() => {
       try {
-        const filteredAnnouncements = announcements.filter(announcement => announcement.id !== id);
-        setAnnouncements(filteredAnnouncements);
+        setAnnouncements(prev => prev.filter(a => a.id !== id));
         toast.success("Announcement deleted successfully");
       } catch (error) {
-        console.error('Error deleting announcement:', error);
         toast.error("Failed to delete announcement");
       } finally {
         setDeletingId(null);
@@ -184,19 +175,11 @@ export default function AnnouncementsPage() {
     setIsEditDialogOpen(true);
   };
 
-  const { 
-    colorTheme, 
-    getGradient, 
-    getHoverGradient, 
-    adjustColor, 
-    getContrastText 
-  } = useOrgTheme();
-
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="container mx-auto p-4">
+      <div className={styles.pageHeader}>
         <h1 
-          className="text-3xl font-bold bg-clip-text text-transparent" 
+          className={styles.pageTitle + " bg-clip-text text-transparent"} 
           style={{ backgroundImage: getGradient() }}
         >
           Announcements
@@ -207,7 +190,7 @@ export default function AnnouncementsPage() {
             backgroundImage: getGradient(),
             color: getContrastText(colorTheme)
           }}
-          className="hover:opacity-90 transition-all"
+          className="w-full md:w-auto hover:opacity-90 transition-all"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Announcement
         </Button>
@@ -215,21 +198,18 @@ export default function AnnouncementsPage() {
 
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
-          <div 
-            className="animate-spin rounded-full h-8 w-8 border-b-2" 
-            style={{ borderColor: colorTheme }}
-          ></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: colorTheme }}></div>
         </div>
       ) : announcements.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">No announcements yet. Create your first announcement!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={styles.contentGrid}>
           {announcements.map((announcement) => (
             <Card 
               key={announcement.id} 
-              className="overflow-hidden flex flex-col transition-all hover:shadow-lg border"
+              className={styles.card}
               style={{ borderColor: adjustColor(colorTheme, 0, 0.1) }}
             >
               {announcement.image_url && (
@@ -252,7 +232,7 @@ export default function AnnouncementsPage() {
               <CardContent className="flex-grow">
                 <p className="whitespace-pre-wrap">{announcement.body}</p>
               </CardContent>
-              <CardFooter className="flex justify-end space-x-2 border-t p-4">
+              <CardFooter className={`flex justify-end gap-2 border-t p-4 ${styles.buttonGroup}`}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -289,18 +269,15 @@ export default function AnnouncementsPage() {
         </div>
       )}
 
-      {/* Add Announcement Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className={styles.modalContent}>
           <DialogHeader>
             <DialogTitle>Add New Announcement</DialogTitle>
-            <DialogDescription>
-              Create a new announcement to share with your users.
-            </DialogDescription>
+            <DialogDescription>Create a new announcement to share with your users.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleAddAnnouncement}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
+          <form onSubmit={handleAddAnnouncement} className={styles.formGroup}>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
@@ -310,22 +287,24 @@ export default function AnnouncementsPage() {
                   required
                 />
               </div>
-
-              <div className="grid gap-2">
+            </div>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="body">Body</Label>
                 <Textarea
                   id="body"
                   value={body}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
+                  onChange={(e) => setBody(e.target.value)}
                   placeholder="Announcement content..."
                   className="min-h-[120px]"
                   required
                 />
               </div>
-
-              <div className="grid gap-2">
+            </div>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="image">Image (Optional)</Label>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                   <Input
                     id="image"
                     type="file"
@@ -334,7 +313,7 @@ export default function AnnouncementsPage() {
                     className="flex-1"
                   />
                   {imagePreview && (
-                    <div className="relative h-16 w-16 rounded overflow-hidden">
+                    <div className="relative h-16 w-16 rounded overflow-hidden shrink-0">
                       <Image
                         src={imagePreview}
                         alt="Preview"
@@ -356,11 +335,15 @@ export default function AnnouncementsPage() {
                 </div>
               </div>
             </div>
-            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                resetForm();
-              }}>
+            <DialogFooter className={styles.buttonGroup}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsAddDialogOpen(false);
+                  resetForm();
+                }}
+              >
                 Cancel
               </Button>
               <Button 
@@ -386,18 +369,15 @@ export default function AnnouncementsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Announcement Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className={styles.modalContent}>
           <DialogHeader>
             <DialogTitle>Edit Announcement</DialogTitle>
-            <DialogDescription>
-              Update the announcement details.
-            </DialogDescription>
+            <DialogDescription>Update the announcement details.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleEditAnnouncement}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
+          <form onSubmit={handleEditAnnouncement} className={styles.formGroup}>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="edit-title">Title</Label>
                 <Input
                   id="edit-title"
@@ -407,22 +387,24 @@ export default function AnnouncementsPage() {
                   required
                 />
               </div>
-
-              <div className="grid gap-2">
+            </div>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="edit-body">Body</Label>
                 <Textarea
                   id="edit-body"
                   value={body}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
+                  onChange={(e) => setBody(e.target.value)}
                   placeholder="Announcement content..."
                   className="min-h-[120px]"
                   required
                 />
               </div>
-
-              <div className="grid gap-2">
+            </div>
+            <div className={styles.formRow}>
+              <div className={styles.formColumn}>
                 <Label htmlFor="edit-image">Image (Optional)</Label>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                   <Input
                     id="edit-image"
                     type="file"
@@ -431,7 +413,7 @@ export default function AnnouncementsPage() {
                     className="flex-1"
                   />
                   {imagePreview && (
-                    <div className="relative h-16 w-16 rounded overflow-hidden">
+                    <div className="relative h-16 w-16 rounded overflow-hidden shrink-0">
                       <Image
                         src={imagePreview}
                         alt="Preview"
@@ -453,11 +435,15 @@ export default function AnnouncementsPage() {
                 </div>
               </div>
             </div>
-            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsEditDialogOpen(false);
-                resetForm();
-              }}>
+            <DialogFooter className={styles.buttonGroup}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsEditDialogOpen(false);
+                  resetForm();
+                }}
+              >
                 Cancel
               </Button>
               <Button 

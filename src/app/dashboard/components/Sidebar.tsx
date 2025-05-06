@@ -28,6 +28,7 @@ interface SidebarProps {
   className?: string;
   isOpen: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
 const navItems = [
@@ -93,7 +94,7 @@ href:'/dashboard/nfc'
   }
 ];
 
-export function Sidebar({ className = '', isOpen, onToggle }: SidebarProps) {
+export function Sidebar({ className = '', isOpen, onToggle, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const { colorTheme } = useOrgStore();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,14 +107,19 @@ export function Sidebar({ className = '', isOpen, onToggle }: SidebarProps) {
     <motion.aside
       className={cn(
         "bg-background/95 border-r border-border/40 backdrop-blur-sm h-[calc(100vh-4rem)]",
-        "fixed left-0 top-16 z-30",
+        "fixed left-0 top-16 z-40",
         "transition-all duration-300 ease-in-out",
-        // Hide scrollbar but keep functionality
+        isMobile ? "w-[240px]" : undefined,
+        isOpen ? "translate-x-0" : "translate-x-[-100%] md:translate-x-0",
+        isMobile ? "md:w-auto" : undefined,
         "overflow-y-auto scrollbar-hide",
         className
       )}
-      initial={{ width: 256 }}
-      animate={{ width: isOpen ? 256 : 72 }}
+      initial={isMobile ? { x: -240 } : { width: 256 }}
+      animate={isMobile 
+        ? { x: isOpen ? 0 : -240 }
+        : { width: isOpen ? 256 : 72 }
+      }
     >
       {/* Sidebar Header with Toggle */}
       <div className="flex items-center justify-center p-3 border-b border-border/40">

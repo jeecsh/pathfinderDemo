@@ -1,18 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  
   images: {
-    domains: ['picsum.photos', 'images.unsplash.com'],
+    domains: [
+      'raw.githubusercontent.com',
+      'cdnjs.cloudflare.com',
+    ],
   },
-
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  typescript: {
-    ignoreBuildErrors: true,
+  transpilePackages: ['react-leaflet'],
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      net: false,
+      dns: false,
+      tls: false,
+      fs: false,
+      request: false,
+    };
+    return config;
   },
 }
 
-module.exports = nextConfig
+module.exports = nextConfig;
