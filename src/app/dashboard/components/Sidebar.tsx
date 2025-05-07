@@ -107,19 +107,16 @@ export function Sidebar({ className = '', isOpen, onToggle, isMobile = false }: 
     <motion.aside
       className={cn(
         "bg-background/95 border-r border-border/40 backdrop-blur-sm h-[calc(100vh-4rem)]",
-        "fixed left-0 top-16 z-40",
+        "fixed left-0 top-16 z-50",
         "transition-all duration-300 ease-in-out",
-        isMobile ? "w-[240px]" : undefined,
-        isOpen ? "translate-x-0" : "translate-x-[-100%] md:translate-x-0",
-        isMobile ? "md:w-auto" : undefined,
+        isMobile ? "w-[240px]" : "w-64 md:w-auto",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         "overflow-y-auto scrollbar-hide",
         className
       )}
-      initial={isMobile ? { x: -240 } : { width: 256 }}
-      animate={isMobile 
-        ? { x: isOpen ? 0 : -240 }
-        : { width: isOpen ? 256 : 72 }
-      }
+      animate={!isMobile ? {
+        width: isOpen ? 256 : 72
+      } : undefined}
     >
       {/* Sidebar Header with Toggle */}
       <div className="flex items-center justify-center p-3 border-b border-border/40">

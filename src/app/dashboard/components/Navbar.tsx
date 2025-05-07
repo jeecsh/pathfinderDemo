@@ -4,15 +4,17 @@ import { useOrgStore } from '@/app/stores/useOrgStore';
 import { useThemeStore } from '@/app/stores/useThemeStore';
 import { ThemeToggle } from '@/app/components/theme-toggle';
 import { motion } from 'framer-motion';
-import { Bell, User } from 'lucide-react';
+import { Bell, User, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface NavbarProps {
   className?: string;
+  onMenuClick?: () => void;
+  isMobile?: boolean;
 }
 
-export function Navbar({ className = '' }: NavbarProps) {
+export function Navbar({ className = '', onMenuClick, isMobile }: NavbarProps) {
   const router = useRouter();
   const { orgName, orgLogo, colorTheme } = useOrgStore();
   const { theme } = useThemeStore();
@@ -36,6 +38,15 @@ export function Navbar({ className = '' }: NavbarProps) {
       >
         <div className="h-16 flex items-center w-full">
           <div className="flex items-center gap-4 pl-3">
+            {isMobile && (
+              <button
+                onClick={onMenuClick}
+                className="p-2 rounded-md hover:bg-accent/80 transition-colors"
+                aria-label="Toggle menu"
+              >
+                <Navigation size={22} className="text-foreground/80" />
+              </button>
+            )}
             <div className="flex items-center gap-3 min-w-[256px]">
               {orgLogo ? (
                 <div className="h-10 w-10 rounded-lg overflow-hidden relative">

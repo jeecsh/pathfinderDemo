@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { Providers } from './providers';
+import { cn } from '@/lib/utils';
 
 export default function DashboardLayout({
   children,
@@ -33,13 +34,13 @@ export default function DashboardLayout({
 
   return (
     <Providers>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pt-16">
         <Navbar 
           className="fixed top-0 w-full z-50" 
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           isMobile={isMobile}
         />
-        <div className="flex ">
+        <div className="flex relative min-h-[calc(100vh-4rem)]">
           <Sidebar 
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -62,9 +63,11 @@ export default function DashboardLayout({
           
           {/* Main content */}
           <motion.main
-            className={`flex-1 transition-all duration-300 p-4 md:p-6 ${
-              sidebarOpen ? 'md:pl-64' : 'md:pl-20'
-            }`}
+            className={cn(
+              "flex-1 p-4 transition-all duration-300",
+              "md:p-6",
+              isMobile ? "w-full" : sidebarOpen ? "md:ml-64" : "md:ml-20"
+            )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
